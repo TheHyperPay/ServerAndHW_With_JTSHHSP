@@ -1,0 +1,36 @@
+#pragma once
+#include "../ServerLibrary.h"
+
+#define IOCPUDP      IOCPUDPServer::getInstance()
+
+class IOCPUDPServer : public Singleton<IOCPUDPServer>
+{
+public:
+    IOCPUDPServer() : iocpHandle(NULL), udpSocket(INVALID_SOCKET) {}
+    ~IOCPUDPServer() { Cleanup(); }
+
+    bool Initialize();
+    void Run();
+    void Stop();
+    void Cleanup();
+
+private:
+    HANDLE iocpHandle;
+    SOCKET udpSocket;
+    std::vector<std::thread> workerThreads;
+    bool running = false;
+
+    struct PerIoData {
+        WSAOVERLAPPED overlapped;
+        WSABUF wsaBuf;
+        char buffer[512];
+        sockaddr_in clientAddr;
+        int addrLen;
+    };
+
+    void WorkerThread();
+    bool CreateWorkerThreads();
+    bool SetupUDPSocket();
+    bool AssociateWithIOCP(SOCKET socket);
+    bool PostReceive(PerIoData* perIoData);
+};

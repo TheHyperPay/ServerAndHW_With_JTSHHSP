@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<App>
+  <Name>Sensor Server</Name>
+  <Server>
+    <IP>127.0.0.1</IP>
+    <Port>19990</Port>
+    <ThreadCount>5</ThreadCount>
+  </Server>
+  <Terminal>
+  </Terminal>
+  <Log>
+    <Path>./Log/System</Path>
+    <Prefix>System</Prefix>
+    <Type>WithFile</Type>
+  </Log>
+  <Task>
+    <ThreadCount>5</ThreadCount>
+  </Task>
+  <Contents>
+    <ThreadCount>5</ThreadCount>
+  </Contents>
+</App>

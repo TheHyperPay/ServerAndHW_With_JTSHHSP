@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="SourceCode">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="SourceCode\Net">
+      <UniqueIdentifier>{ceda5aee-c34d-41ac-9d8e-8639ab071aec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\Util">
+      <UniqueIdentifier>{4f09b344-4480-48b3-b597-84fda1f93cf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SourceCode\Contents">
+      <UniqueIdentifier>{0d11b977-6359-42e0-8d9f-6315d268df42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Library Files\Tinyxml">
+      <UniqueIdentifier>{96ccfd1b-1abe-40f4-a8a2-0fcecfe921f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{bc087f88-8d26-4ff0-b668-587fddfc40dc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="tinyxml\tinystr.cpp">
+      <Filter>Library Files\Tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxml.cpp">
+      <Filter>Library Files\Tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlerror.cpp">
+      <Filter>Library Files\Tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxmlparser.cpp">
+      <Filter>Library Files\Tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="SensorServer.cpp">
+      <Filter>SourceCode</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Config.cpp">
+      <Filter>SourceCode\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\Server.cpp">
+      <Filter>SourceCode\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\IOCP.cpp">
+      <Filter>SourceCode\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\IOCPUDP.cpp">
+      <Filter>SourceCode\Net</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ServerLibrary.h">
+      <Filter>SourceCode</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Type.hpp">
+      <Filter>SourceCode\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Util.hpp">
+      <Filter>SourceCode\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Singleton.hpp">
+      <Filter>SourceCode\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinystr.h">
+      <Filter>Library Files\Tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinyxml.h">
+      <Filter>Library Files\Tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Config.h">
+      <Filter>SourceCode\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\Server.h">
+      <Filter>SourceCode\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\IOCP.h">
+      <Filter>SourceCode\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\IOCPUDP.h">
+      <Filter>SourceCode\Net</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Resources\Config.xml">
+      <Filter>Resources</Filter>
+    </Xml>
+  </ItemGroup>
+</Project>
