@@ -1,34 +1,41 @@
 #include "../ServerLibrary.h"
 #include "./IOCPUDP.h"
 
-bool IOCPUDPServer::Initialize() {
+bool IOCPUDPServer::Initialize() 
+{
     WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) 
+    {
         std::cerr << "WSAStartup failed" << std::endl;
         return false;
     }
 
     iocpHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
-    if (iocpHandle == NULL) {
+    if (iocpHandle == NULL) 
+    {
         std::cerr << "CreateIoCompletionPort failed" << std::endl;
         return false;
     }
 
-    if (!SetupUDPSocket()) {
+    if (!SetupUDPSocket()) 
+    {
         return false;
     }
 
-    if (!CreateWorkerThreads()) {
+    if (!CreateWorkerThreads()) 
+    {
         return false;
     }
-
+    
     running = true;
     return true;
 }
 
-bool IOCPUDPServer::SetupUDPSocket() {
+bool IOCPUDPServer::SetupUDPSocket() 
+{
     udpSocket = socket(AF_INET, SOCK_DGRAM, 0); // UDP 소켓 생성
-    if (udpSocket == INVALID_SOCKET) {
+    if (udpSocket == INVALID_SOCKET) 
+    {
         std::cerr << "Socket creation failed" << std::endl;
         return false;
     }
@@ -38,12 +45,14 @@ bool IOCPUDPServer::SetupUDPSocket() {
     serverAddr.sin_port = htons(19991);
     serverAddr.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind(udpSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
+    if (bind(udpSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) 
+    {
         std::cerr << "Bind failed" << std::endl;
         return false;
     }
 
-    if (!AssociateWithIOCP(udpSocket)) {
+    if (!AssociateWithIOCP(udpSocket)) 
+    {
         return false;
     }
 
@@ -55,16 +64,19 @@ bool IOCPUDPServer::SetupUDPSocket() {
     return PostReceive(perIoData);
 }
 
-bool IOCPUDPServer::AssociateWithIOCP(SOCKET socket) {
+bool IOCPUDPServer::AssociateWithIOCP(SOCKET socket) 
+{
     HANDLE result = CreateIoCompletionPort((HANDLE)socket, iocpHandle, (ULONG_PTR)socket, 0);
-    if (result == NULL) {
+    if (result == NULL) 
+    {
         std::cerr << "AssociateWithIOCP failed" << std::endl;
         return false;
     }
     return true;
 }
 
-bool IOCPUDPServer::PostReceive(PerIoData* perIoData) {
+bool IOCPUDPServer::PostReceive(PerIoData* perIoData) 
+{
     perIoData->wsaBuf.buf = perIoData->buffer;
     perIoData->wsaBuf.len = sizeof(perIoData->buffer);
 
@@ -73,7 +85,8 @@ bool IOCPUDPServer::PostReceive(PerIoData* perIoData) {
     int result = WSARecvFrom(udpSocket, &perIoData->wsaBuf, 1, &bytesReceived, &flags,
         (sockaddr*)&perIoData->clientAddr, &perIoData->addrLen,
         &perIoData->overlapped, NULL);
-    if (result == SOCKET_ERROR && WSAGetLastError() != WSA_IO_PENDING) {
+    if (result == SOCKET_ERROR && WSAGetLastError() != WSA_IO_PENDING) 
+    {
         std::cerr << "WSARecvFrom failed" << std::endl;
         return false;
     }
@@ -81,49 +94,74 @@ bool IOCPUDPServer::PostReceive(PerIoData* perIoData) {
     return true;
 }
 
-bool IOCPUDPServer::CreateWorkerThreads() {
+bool IOCPUDPServer::CreateWorkerThreads() 
+{
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
     int numThreads = 2 * 2;
 
-    for (int i = 0; i < numThreads; ++i) {
+    for (int i = 0; i < numThreads; ++i) 
+    {
         workerThreads.emplace_back(&IOCPUDPServer::WorkerThread, this);
     }
 
     return true;
 }
 
-void IOCPUDPServer::WorkerThread() {
+void IOCPUDPServer::WorkerThread() 
+{
     while (running) {
         DWORD bytesTransferred = 0;
         ULONG_PTR completionKey = 0;
         OVERLAPPED* overlapped = nullptr;
 
         BOOL success = GetQueuedCompletionStatus(iocpHandle, &bytesTransferred, &completionKey, &overlapped, INFINITE);
-        if (!success || bytesTransferred == 0) {
+        if (!success || bytesTransferred == 0) 
+        {
             std::cerr << "GetQueuedCompletionStatus failed" << std::endl;
             continue;
         }
 
         // 완료된 I/O 작업 처리
         PerIoData* perIoData = (PerIoData*)overlapped;
-        std::cout << "Received data from client: " << perIoData->buffer << std::endl;
+
+        //buffer에서 packet처리하기
+        Packet<P_D_SENSOR_ACCEL_PacketData>* packet = new Packet<P_D_SENSOR_ACCEL_PacketData>();
+        packet->toStruct(perIoData->buffer);
+
+        cout << "Get Message>> "
+            << " PT: " << packet->getPacketData()->packetType
+            << " DC: " << packet->getPacketData()->deviceCode
+            << " AX: " << packet->getPacketData()->accelX
+            << " AY: " << packet->getPacketData()->accelY
+            << " AZ: " << packet->getPacketData()->accelZ
+            << " PI: " << packet->getPacketData()->pitch
+            << " YA: " << packet->getPacketData()->yaw
+            << " RO: " << packet->getPacketData()->roll
+            << endl;
+
+        SAFE_DELETE(packet)
+
+        memset(perIoData->buffer, 0, sizeof(perIoData->buffer));
 
         // 데이터 처리 후 다시 수신 요청 게시
         PostReceive(perIoData);
     }
 }
 
-void IOCPUDPServer::Run() {
+void IOCPUDPServer::Run() 
+{
     std::cout << "UDP Server running..." << std::endl;
 
-    while (running) {
+    while (running) 
+    {
         DWORD bytesTransferred = 0;
         ULONG_PTR completionKey = 0;
         OVERLAPPED* overlapped = nullptr;
 
         BOOL success = GetQueuedCompletionStatus(iocpHandle, &bytesTransferred, &completionKey, &overlapped, INFINITE);
-        if (!success || bytesTransferred == 0) {
+        if (!success || bytesTransferred == 0) 
+        {
             std::cerr << "GetQueuedCompletionStatus failed" << std::endl;
             continue;
         }
@@ -139,25 +177,31 @@ void IOCPUDPServer::Run() {
     }
 }
 
-void IOCPUDPServer::Stop() {
+void IOCPUDPServer::Stop() 
+{
     running = false;
 
-    for (auto& thread : workerThreads) {
-        if (thread.joinable()) {
+    for (auto& thread : workerThreads) 
+    {
+        if (thread.joinable()) 
+        {
             thread.join();
         }
     }
 }
 
-void IOCPUDPServer::Cleanup() {
+void IOCPUDPServer::Cleanup() 
+{
     Stop();
 
-    if (udpSocket != INVALID_SOCKET) {
+    if (udpSocket != INVALID_SOCKET) 
+    {
         closesocket(udpSocket);
         udpSocket = INVALID_SOCKET;
     }
 
-    if (iocpHandle != NULL) {
+    if (iocpHandle != NULL) 
+    {
         CloseHandle(iocpHandle);
         iocpHandle = NULL;
     }

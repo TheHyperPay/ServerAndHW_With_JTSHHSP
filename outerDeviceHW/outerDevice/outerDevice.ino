@@ -1,12 +1,14 @@
 #include <WiFiNINA.h>
 #include <Arduino_LSM6DS3.h>
+#include <Arduino.h>
 #include <SPI.h>
 
 //==========Default Configure 선언==========
-#define DEVICE_CODE 0x01
-#define UNIT_TEST UNITTEST_ALL
-#define NETENV ENV_HOME
-#define FPS 1000/5
+#define DEVICE_CODE 0x00003311
+#define SOCKET_BUF_SIZE 64 * 8
+#define UNIT_TEST UNITTEST_NONE
+#define NETENV ENV_KSHHOTSPOT
+#define FPS 1000/60
 
 #define SENSOR_SERVER "route.pgass.one"
 #define PORT 19991
@@ -20,6 +22,20 @@ typedef struct Axis6_t{
   float yaw;
   float roll;
 }Axis6_t;
+
+typedef struct Packet_t{
+  unsigned int packetType;
+  int deviceCode;
+  float accelX;
+  float accelY;
+  float accelZ;
+  float pitch;
+  float yaw;
+  float roll;
+}Packet_t;
+
+#define P_D_SENSOR_ACCEL 1001
+
 #pragma endregion
 
 #pragma region SETTING //각종 세팅 설정
@@ -113,6 +129,41 @@ void noticeHW(char type, char errorCode, const char* message)
 #define BLOCK_GYROSCOPE           0x52
 #pragma endregion
 
+#pragma region JSON
+// Convert to JSON
+char* packetToJson(const Packet_t* packet) 
+{
+  char* jsonString = (char*)malloc(SOCKET_BUF_SIZE);
+  if (jsonString == NULL) 
+  {
+      perror("Unable to allocate memory");
+      return NULL;
+  }
+
+  snprintf(jsonString, SOCKET_BUF_SIZE, 
+    "{"
+    "\"packetType\": %u,"
+    "\"deviceCode\": %u,"
+    "\"accelX\": %.2f,"
+    "\"accelY\": %.2f,"
+    "\"accelZ\": %.2f,"
+    "\"pitch\": %.2f,"
+    "\"yaw\": %.2f,"
+    "\"roll\": %.2f"
+    "}",
+    packet->packetType,
+    packet->deviceCode,
+    packet->accelX,
+    packet->accelY,
+    packet->accelZ,
+    packet->pitch,
+    packet->yaw,
+    packet->roll
+  );
+
+  return jsonString;
+}
+#pragma endregion
 //======================================================================================
 //======================================================================================
 
@@ -174,18 +225,38 @@ bool getIPAddress(IPAddress* serverIPAddr)
   return false;
 }
 
-void telecom()
+void telecom(Axis6_t* axis)
 {
   udp.beginPacket(serverIP, PORT);
-  udp.write("message\0");
+
+  //Make Data stream
+  Packet_t packet = {
+    P_D_SENSOR_ACCEL,
+    DEVICE_CODE,
+    axis->accelX,
+    axis->accelY,
+    axis->accelZ,
+    axis->pitch,
+    axis->yaw,
+    axis->roll
+  };
+
+  char* buffer = packetToJson(&packet);
+  if(buffer != NULL)
+  {
+    udp.write(buffer);
+  }
   
   int result = udp.endPacket(); // 전송 성공 여부 확인
   if (result == 1) {  
-    Serial.println("Message sent to server.");
+    Serial.print("Message sent to server ");
+    Serial.println(buffer);
   } else {
     Serial.print("Failed to send message. Result: ");
     Serial.println(result); // 전송 실패 시 결과 코드 출력
   }
+
+  free(buffer);
 }
 #pragma endregion
 
@@ -254,7 +325,7 @@ void loop()
   renewIMUSensorValue(&sensorData);
 
   //데이터통신 
-  //telecom();
+  telecom(&sensorData);
 
   delay(FPS);
 }

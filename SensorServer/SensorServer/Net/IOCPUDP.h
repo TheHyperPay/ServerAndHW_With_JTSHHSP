@@ -20,10 +20,11 @@ private:
     std::vector<std::thread> workerThreads;
     bool running = false;
 
+    //작업 관리 추적용
     struct PerIoData {
         WSAOVERLAPPED overlapped;
         WSABUF wsaBuf;
-        char buffer[512];
+        char buffer[SOCKET_BUF_SIZE] = { 0 };
         sockaddr_in clientAddr;
         int addrLen;
     };

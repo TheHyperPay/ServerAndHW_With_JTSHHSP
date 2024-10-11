@@ -10,6 +10,7 @@
 #include <iostream>
 #include <assert.h>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <tchar.h>
 #include <regex>
@@ -23,6 +24,7 @@
 #include <typeinfo>
 
 #include "./tinyxml/tinyxml.h"
+#include "./json11/json11.hpp"
 
 #if _DEBUG
 #define CONTEXT_SWITCH		Sleep(1)
@@ -39,6 +41,8 @@ using namespace std;
 #include "./Util/Singleton.hpp"
 #include "./Util/Config.h"
 
+#include "./Net/Packet/PacketHeader.hpp"
+#include "./Net/Packet/Packet.h"
 #include "./Net/Server.h"
 #include "./Net/IOCP.h"
 #include "./Net/IOCPUDP.h"

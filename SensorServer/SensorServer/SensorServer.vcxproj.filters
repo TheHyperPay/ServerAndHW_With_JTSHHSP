@@ -24,6 +24,12 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{bc087f88-8d26-4ff0-b668-587fddfc40dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SourceCode\Net\Packet">
+      <UniqueIdentifier>{76c6d968-15f9-4a70-b89a-a5d032e798a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Library Files\json11">
+      <UniqueIdentifier>{a5d0f95c-0b6d-458f-bedf-7f07e0f714ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tinyxml\tinystr.cpp">
@@ -52,6 +58,12 @@
     </ClCompile>
     <ClCompile Include="Net\IOCPUDP.cpp">
       <Filter>SourceCode\Net</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\Packet\Packet.cpp">
+      <Filter>SourceCode\Net\Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="json11\json11.cpp">
+      <Filter>Library Files\json11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +96,15 @@
     </ClInclude>
     <ClInclude Include="Net\IOCPUDP.h">
       <Filter>SourceCode\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\Packet\Packet.h">
+      <Filter>SourceCode\Net\Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\Packet\PacketHeader.hpp">
+      <Filter>SourceCode\Net\Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="json11\json11.hpp">
+      <Filter>Library Files\json11</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
