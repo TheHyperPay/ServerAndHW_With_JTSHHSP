@@ -27,4 +27,6 @@ typedef TiXmlHandle				xmlHandle_t;
 //json11
 using namespace json11;
 
+using namespace chrono;
+
 #define SOCKET_BUF_SIZE			64 * 8

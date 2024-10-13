@@ -138,6 +138,7 @@
     <ClCompile Include="json11\json11.cpp" />
     <ClCompile Include="Net\IOCP.cpp" />
     <ClCompile Include="Net\IOCPUDP.cpp" />
+    <ClCompile Include="Net\MobileManager.cpp" />
     <ClCompile Include="Net\Packet\Packet.cpp" />
     <ClCompile Include="Net\Server.cpp" />
     <ClCompile Include="SensorServer.cpp" />
@@ -146,11 +147,13 @@
     <ClCompile Include="tinyxml\tinyxmlerror.cpp" />
     <ClCompile Include="tinyxml\tinyxmlparser.cpp" />
     <ClCompile Include="Util\Config.cpp" />
+    <ClCompile Include="Util\HeartBeat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="json11\json11.hpp" />
     <ClInclude Include="Net\IOCP.h" />
     <ClInclude Include="Net\IOCPUDP.h" />
+    <ClInclude Include="Net\MobileManager.h" />
     <ClInclude Include="Net\Packet\Packet.h" />
     <ClInclude Include="Net\Packet\PacketHeader.hpp" />
     <ClInclude Include="Net\Server.h" />
@@ -158,6 +161,7 @@
     <ClInclude Include="tinyxml\tinystr.h" />
     <ClInclude Include="tinyxml\tinyxml.h" />
     <ClInclude Include="Util\Config.h" />
+    <ClInclude Include="Util\HeartBeat.h" />
     <ClInclude Include="Util\Singleton.hpp" />
     <ClInclude Include="Util\Type.hpp" />
     <ClInclude Include="Util\Util.hpp" />

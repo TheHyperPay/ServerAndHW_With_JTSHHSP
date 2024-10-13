@@ -7,7 +7,7 @@
 #define DEVICE_CODE 0x00003311
 #define SOCKET_BUF_SIZE 64 * 8
 #define UNIT_TEST UNITTEST_NONE
-#define NETENV ENV_KSHHOTSPOT
+#define NETENV ENV_HOME
 #define FPS 1000/60
 
 #define SENSOR_SERVER "route.pgass.one"

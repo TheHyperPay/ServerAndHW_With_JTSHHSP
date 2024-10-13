@@ -75,6 +75,7 @@ bool IOCPUDPServer::AssociateWithIOCP(SOCKET socket)
     return true;
 }
 
+//비동기적으로 데이터를 받기 위한 준비 작업
 bool IOCPUDPServer::PostReceive(PerIoData* perIoData) 
 {
     perIoData->wsaBuf.buf = perIoData->buffer;
@@ -94,6 +95,23 @@ bool IOCPUDPServer::PostReceive(PerIoData* perIoData)
     return true;
 }
 
+bool IOCPUDPServer::SendData(PerIoData* perIoData, const char* message)
+{
+    // 클라이언트에게 메시지 전송
+    sockaddr_in clientAddr = perIoData->clientAddr; // 클라이언트 주소 정보
+    int addrLen = sizeof(clientAddr);
+    int result = sendto(udpSocket, message, strlen(message), 0, (sockaddr*)&clientAddr, addrLen);
+
+    if (result == SOCKET_ERROR)
+    {
+        std::cerr << "sendto failed" << std::endl;
+        return false;
+    }
+
+    std::cout << "Sent message to client: " << message << std::endl;
+    return true;
+}
+
 bool IOCPUDPServer::CreateWorkerThreads() 
 {
     SYSTEM_INFO sysInfo;
@@ -108,6 +126,7 @@ bool IOCPUDPServer::CreateWorkerThreads()
     return true;
 }
 
+//WorkerThread가 I/O 완료 통지를 받고, 해당 작업을 처리하는 방식으로 동작
 void IOCPUDPServer::WorkerThread() 
 {
     while (running) {
@@ -125,7 +144,12 @@ void IOCPUDPServer::WorkerThread()
         // 완료된 I/O 작업 처리
         PerIoData* perIoData = (PerIoData*)overlapped;
 
+        cout << "Get Message: " << perIoData->buffer << endl;
+
+        SendData(perIoData, perIoData->buffer);
+
         //buffer에서 packet처리하기
+        /*
         Packet<P_D_SENSOR_ACCEL_PacketData>* packet = new Packet<P_D_SENSOR_ACCEL_PacketData>();
         packet->toStruct(perIoData->buffer);
 
@@ -141,6 +165,7 @@ void IOCPUDPServer::WorkerThread()
             << endl;
 
         SAFE_DELETE(packet)
+        */
 
         memset(perIoData->buffer, 0, sizeof(perIoData->buffer));
 
