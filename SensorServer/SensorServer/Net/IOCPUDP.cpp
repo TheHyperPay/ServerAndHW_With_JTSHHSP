@@ -95,12 +95,11 @@ bool IOCPUDPServer::PostReceive(PerIoData* perIoData)
     return true;
 }
 
-bool IOCPUDPServer::SendData(PerIoData* perIoData, const char* message)
+bool IOCPUDPServer::SendData(sockaddr_in client, const char* message)
 {
     // 클라이언트에게 메시지 전송
-    sockaddr_in clientAddr = perIoData->clientAddr; // 클라이언트 주소 정보
-    int addrLen = sizeof(clientAddr);
-    int result = sendto(udpSocket, message, strlen(message), 0, (sockaddr*)&clientAddr, addrLen);
+    int addrLen = sizeof(client);
+    int result = sendto(udpSocket, message, strlen(message), 0, (sockaddr*)&client, addrLen);
 
     if (result == SOCKET_ERROR)
     {
@@ -144,28 +143,45 @@ void IOCPUDPServer::WorkerThread()
         // 완료된 I/O 작업 처리
         PerIoData* perIoData = (PerIoData*)overlapped;
 
-        cout << "Get Message: " << perIoData->buffer << endl;
+        try
+        {
+            Packet<PacketDataHeader>* packetHeader = new Packet<PacketDataHeader>();
+            packetHeader->toStruct(perIoData->buffer);
 
-        SendData(perIoData, perIoData->buffer);
+            switch (packetHeader->getPacketData()->packetType)
+            {
+                case PacketType::P_E_ERROR_T: {
+                    break;
+                }
+                case PacketType::P_D_SENSOR_ACCEL_T: {
+                    Packet<P_D_SENSOR_ACCEL_PacketData>* packet = new Packet<P_D_SENSOR_ACCEL_PacketData>();
+                    packet->toStruct(perIoData->buffer);
 
-        //buffer에서 packet처리하기
-        /*
-        Packet<P_D_SENSOR_ACCEL_PacketData>* packet = new Packet<P_D_SENSOR_ACCEL_PacketData>();
-        packet->toStruct(perIoData->buffer);
+                    SendData(MOBILEMANAGER.uniUser, perIoData->buffer);
 
-        cout << "Get Message>> "
-            << " PT: " << packet->getPacketData()->packetType
-            << " DC: " << packet->getPacketData()->deviceCode
-            << " AX: " << packet->getPacketData()->accelX
-            << " AY: " << packet->getPacketData()->accelY
-            << " AZ: " << packet->getPacketData()->accelZ
-            << " PI: " << packet->getPacketData()->pitch
-            << " YA: " << packet->getPacketData()->yaw
-            << " RO: " << packet->getPacketData()->roll
-            << endl;
+                    SAFE_DELETE(packet)
+                        break;
+                }
+                case PacketType::P_M_DEVICE_CONNECT_T: {
+                    Packet<P_M_DEVICE_CONNECT_PacketData>* packet = new Packet<P_M_DEVICE_CONNECT_PacketData>();
+                    packet->toStruct(perIoData->buffer);
 
-        SAFE_DELETE(packet)
-        */
+                    //플레이어 등록
+                    MOBILEMANAGER.uniUser = perIoData->clientAddr;
+                    cout << "Success to sign up a player!" << endl;
+                    SendData(MOBILEMANAGER.uniUser, "Connect to Server Successfully!");
+                    SAFE_DELETE(packet)
+                    break;
+                }
+            }
+
+            SAFE_DELETE(packetHeader)
+        }
+        catch (exception e)
+        {
+            cerr << "Packet Logic Error! " << endl;
+            cerr << "Packet: " << perIoData << endl;
+        }
 
         memset(perIoData->buffer, 0, sizeof(perIoData->buffer));
 
@@ -178,27 +194,11 @@ void IOCPUDPServer::Run()
 {
     std::cout << "UDP Server running..." << std::endl;
 
-    while (running) 
+    // 메인 루프는 단순히 서버 상태를 관리하거나 필요한 로직을 처리 Workthread와 IOCP 경쟁 방지
+    while (running)
     {
-        DWORD bytesTransferred = 0;
-        ULONG_PTR completionKey = 0;
-        OVERLAPPED* overlapped = nullptr;
-
-        BOOL success = GetQueuedCompletionStatus(iocpHandle, &bytesTransferred, &completionKey, &overlapped, INFINITE);
-        if (!success || bytesTransferred == 0) 
-        {
-            std::cerr << "GetQueuedCompletionStatus failed" << std::endl;
-            continue;
-        }
-
-        // 완료된 I/O 작업 처리
-        PerIoData* perIoData = (PerIoData*)overlapped;
-
-        // 수신된 메시지 출력
-        std::cout << "Received message from client: " << perIoData->buffer << std::endl;
-
-        // 다시 수신 요청 게시
-        PostReceive(perIoData);
+        // GetQueuedCompletionStatus는 WorkerThread에서만 처리하게 수정
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // 상태를 확인하면서 서버가 계속 실행 중인지 감시
     }
 }
 

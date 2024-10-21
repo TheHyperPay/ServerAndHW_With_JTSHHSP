@@ -25,4 +25,7 @@ public:
 	ClientInfo_t* searchClientBySocket(const sockaddr_in& clientAddr);
 	bool removeClient(const string& id);
 	void cleanupExpiredSessions();
+
+	//HACK: 일단 구현부터 하기 위해 만들어둔 코드
+	sockaddr_in uniUser;
 };

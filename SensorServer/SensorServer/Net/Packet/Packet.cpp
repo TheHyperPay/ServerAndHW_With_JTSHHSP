@@ -1,30 +1,16 @@
 #include "../../ServerLibrary.h"
 #include "Packet.h"
 
-template <typename T>
+
+template<typename T>
 string Packet<T>::toJson(const T packetData)
 {
-
+	return string();
 }
-
-template <typename T>
-T* Packet<T>::toStruct(const string jsonData);
 
 template <>
-P_D_SENSOR_ACCEL_PacketData* Packet<P_D_SENSOR_ACCEL_PacketData>::toStruct(const string jsonData)
+PacketDataHeader* Packet<PacketDataHeader>::toStruct(const string jsonData)
 {
-/*
-{
-	"PacketType": 1001,
-	"deviceCode": 1,
-	"accelX": 0.08,
-	"accelY": -0.52,
-	"accelZ": 0.85,
-	"pitch": 0.18,
-	"yaw": -0.37,
-	"roll": 0.06
-}
-*/
 	string err;
 	Json json = Json::parse(jsonData, err);
 
@@ -32,7 +18,22 @@ P_D_SENSOR_ACCEL_PacketData* Packet<P_D_SENSOR_ACCEL_PacketData>::toStruct(const
 		throw std::runtime_error("Error parsing JSON: " + err);
 	}
 
-	//정상적이지 않는 데이터 에러 처리필요
+	_packetData.packetType = json["packetType"].int_value();
+	_packetData.deviceCode = json["deviceCode"].int_value();
+
+	return &_packetData;
+}
+
+template <>
+P_D_SENSOR_ACCEL_PacketData* Packet<P_D_SENSOR_ACCEL_PacketData>::toStruct(const string jsonData)
+{
+	string err;
+	Json json = Json::parse(jsonData, err);
+
+	if (!err.empty()) {
+		throw std::runtime_error("Error parsing JSON: " + err);
+	}
+
 	_packetData.packetType = json["packetType"].int_value();
 	_packetData.deviceCode = json["deviceCode"].int_value();
 	_packetData.accelX = (float)json["accelX"].number_value();
@@ -48,5 +49,16 @@ P_D_SENSOR_ACCEL_PacketData* Packet<P_D_SENSOR_ACCEL_PacketData>::toStruct(const
 template <>
 P_M_DEVICE_CONNECT_PacketData* Packet<P_M_DEVICE_CONNECT_PacketData>::toStruct(const string jsonData)
 {
+	string err;
+	Json json = Json::parse(jsonData, err);
+
+	if (!err.empty()) {
+		throw std::runtime_error("Error parsing JSON: " + err);
+	}
+
+	_packetData.packetType = json["packetType"].int_value();
+	_packetData.deviceCode = json["deviceCode"].int_value();
+	_packetData.matchDevice = json["matchDevice"].int_value();
+
 	return &_packetData;
 }

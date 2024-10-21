@@ -34,5 +34,5 @@ private:
     bool SetupUDPSocket();
     bool AssociateWithIOCP(SOCKET socket);
     bool PostReceive(PerIoData* perIoData);
-    bool SendData(PerIoData* perIoData, const char* message);
+    bool SendData(sockaddr_in client, const char* message);
 };
