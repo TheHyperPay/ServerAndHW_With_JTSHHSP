@@ -8,7 +8,7 @@
 #define SOCKET_BUF_SIZE 64 * 8
 #define UNIT_TEST UNITTEST_NONE
 #define NETENV ENV_HOME
-#define FPS 1000/60
+#define FPS 1000/20
 
 #define SENSOR_SERVER "route.pgass.one"
 #define PORT 19991
