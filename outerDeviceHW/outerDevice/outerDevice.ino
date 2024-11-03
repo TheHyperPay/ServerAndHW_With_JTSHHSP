@@ -50,8 +50,8 @@ typedef struct Packet_t{
 #define ENV_KSHHOTSPOT 0x3
 
 #if NETENV == ENV_HOME
-const char* ssid     = "KTGiGA2G_lovehouse";
-const char* password = "kim52381257";
+const char* ssid     = "---";
+const char* password = "---";
 #elif NETENV == ENV_OFFICE
 const char* ssid     = "DLive5G_4C0A";
 const char* password = "E0014D4C09";
